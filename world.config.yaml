@@ -65,10 +65,15 @@ site:
   # How the theme writes a year. The codex counts from one epoch; this says what to call it.
   t0_prefix: T0
   t0_epoch: REPLACE_ME
+  # The landing page's "Ways in" cards. Point them at pages that will exist: a doorway to an empty
+  # section is a dead link, and `tools/site_link_check.py` fails the build on one.
   doorways:
-    - href: /world/
-      label: The World
-      blurb: "REPLACE_ME — one line for the landing page."
+    - href: /codex/
+      label: The Codex
+      blurb: "REPLACE_ME — one line, pointing at the first thing a reader should read."
+    - href: /changelog/
+      label: The Changelog
+      blurb: "REPLACE_ME — one line. Replace this card once the world has a second real section."
   # Navigation order, and which note kind each section owns. The first section whose `kinds`
   # contains a note's kind owns it. Every kind a world uses must appear in exactly one section.
   sections:

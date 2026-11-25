@@ -1,6 +1,6 @@
 ---
 id: topic_world_index
-kind: TOPIC
+kind: INDEX
 title: The World
 name_status: working
 status: working
@@ -9,7 +9,7 @@ engine: false
 
 # The World
 
-**Summary:** A map of content for the canon. One note per entity, one home per fact. The folders
+**Purpose:** A map of content for the canon. One note per entity, one home per fact. The folders
 below are the layout the conventions fix; a world that needs none of them leaves the `_index.md` in
 place and writes nothing else.
 

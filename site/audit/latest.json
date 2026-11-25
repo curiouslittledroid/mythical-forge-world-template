@@ -1,0 +1,84 @@
+{
+  "ambiguous_links": [],
+  "design_fields": [],
+  "dropped_lines": [],
+  "dropped_sections": [],
+  "empty_tags": [
+    "REPLACE"
+  ],
+  "flattened_links": [],
+  "generated": "2026-11-26",
+  "internal_references": [],
+  "keyword_hits": [],
+  "links": 0,
+  "pages": 1,
+  "pages_without_summary": [],
+  "plates": [],
+  "plot_web_text_mentions": [],
+  "sections": 2,
+  "skipped_notes": [
+    {
+      "note": "world/_index.md",
+      "reason": "no open content"
+    },
+    {
+      "note": "world/creatures/_index.md",
+      "reason": "kind 'INDEX' has no section"
+    },
+    {
+      "note": "world/factions/_index.md",
+      "reason": "kind 'INDEX' has no section"
+    },
+    {
+      "note": "world/flags.md",
+      "reason": "no open content"
+    },
+    {
+      "note": "world/gods/_index.md",
+      "reason": "kind 'INDEX' has no section"
+    },
+    {
+      "note": "world/history/_index.md",
+      "reason": "kind 'INDEX' has no section"
+    },
+    {
+      "note": "world/items-materials/_index.md",
+      "reason": "kind 'INDEX' has no section"
+    },
+    {
+      "note": "world/npcs/_index.md",
+      "reason": "kind 'INDEX' has no section"
+    },
+    {
+      "note": "world/peoples/_index.md",
+      "reason": "kind 'INDEX' has no section"
+    },
+    {
+      "note": "world/places/_index.md",
+      "reason": "kind 'INDEX' has no section"
+    },
+    {
+      "note": "world/places/regions/_index.md",
+      "reason": "kind 'INDEX' has no section"
+    },
+    {
+      "note": "world/plot-web/_index.md",
+      "reason": "kind 'INDEX' has no section"
+    },
+    {
+      "note": "world/relics/_index.md",
+      "reason": "kind 'INDEX' has no section"
+    },
+    {
+      "note": "world/society/_index.md",
+      "reason": "kind 'INDEX' has no section"
+    }
+  ],
+  "testimony": [],
+  "testimony_undated": [],
+  "testimony_unplaced": [],
+  "testimony_words": 0,
+  "unresolved_links": [],
+  "withheld_tags": {},
+  "words": 103
+}

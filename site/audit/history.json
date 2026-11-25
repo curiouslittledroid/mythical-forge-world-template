@@ -1,0 +1,23 @@
+{
+  "entries": [
+    {
+      "change": "added",
+      "date": "2026-11-26",
+      "id": "item_readers_book",
+      "section": "relics",
+      "slug": "the-book",
+      "title": "The Book"
+    }
+  ],
+  "pages": {
+    "item_readers_book": {
+      "added": "2026-11-26",
+      "hash": "be20edc07a35",
+      "previous_slugs": [],
+      "section": "relics",
+      "slug": "the-book",
+      "title": "The Book",
+      "updated": "2026-11-26"
+    }
+  }
+}

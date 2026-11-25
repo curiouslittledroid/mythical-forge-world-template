@@ -1,0 +1,88 @@
+---
+// The About page. THIS FILE IS THE WORLD'S OWN — the sync never overwrites it.
+// Replace the REPLACE_ME prose with the world's own.
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { SITE, contentDescriptors, whatToExpect } from '../lib/site';
+---
+
+<BaseLayout
+  title="About the game"
+  description={`What ${SITE.name} is, what a game in it feels like, and what it is not.`}
+  section="about"
+>
+  <div class="mx-auto max-w-6xl px-5 pt-12 sm:px-8 sm:pt-16">
+    <header class="max-w-2xl">
+      <p class="eyebrow">About</p>
+      <h1 class="mt-3 text-[clamp(2.2rem,5vw,3.2rem)]">About the game</h1>
+      <p class="mt-4 text-[1.18rem] text-ash">
+        REPLACE_ME — {SITE.name}, in one sentence: the genre, the premise, and how long ago it went
+        wrong.
+      </p>
+      <span class="rule-ember mt-6"></span>
+    </header>
+
+    <div class="mt-12 grid gap-x-14 gap-y-12 md:grid-cols-[minmax(0,42rem)_13rem]">
+      <div class="prose-hollow max-w-[64ch]">
+        <h2>What this site is</h2>
+        <p>
+          A world bible, written in the open, and the codex a game master can run from. It is the
+          player-facing portion of the codex. It is not a campaign and it is not a novel: it is the
+          world several campaigns will share, designed so that the politics, the magic and the
+          monsters all trace back to the same history.
+        </p>
+        <p>
+          The rules and engine are in development. The world is not waiting for them — it is built to
+          be played in with whatever system you bring. It is being written as a campaign world for the
+          <em>Mythical Forge game engine</em>, a platform for TTRPG-style solo play (initially). It is
+          not a 3D engine: it acts as a game master for pen-and-paper-style fantasy campaigns.
+        </p>
+
+        <h2>What a game feels like</h2>
+        <p>
+          REPLACE_ME — who the player characters are here, given the world's structure of power. Which
+          of the world's chains do they start inside?
+        </p>
+        <p>
+          REPLACE_ME — what the interesting decisions are. Not good against evil: which of two people
+          you disappoint, and what it costs to be owed a favour.
+        </p>
+
+        <h2>The tone, plainly</h2>
+        <ul>
+          {whatToExpect.map((line) => <li>{line}</li>)}
+        </ul>
+
+        <h2>Content</h2>
+        <p>
+          {SITE.name} campaigns use the content descriptors of
+          <strong>{contentDescriptors.join(', ')}</strong> unless a campaign says otherwise.
+          REPLACE_ME — one sentence on how the world treats what those descriptors cover.
+        </p>
+
+        <h2>What is not here</h2>
+        <p>
+          No secrets. Everything on this site is knowledge a resident of the world could have —
+          official history, common belief, rumour, and the disagreements between them. The truth
+          underneath is the part a campaign is for.
+        </p>
+      </div>
+
+      <aside class="marginalia md:border-l md:border-[var(--rule)] md:pl-5">
+        <p class="eyebrow mb-2">In one line</p>
+        <p>
+          REPLACE_ME — the world in one line, in the world's own vocabulary. This is the line a
+          reader should remember.
+        </p>
+        <p class="mt-6 eyebrow mb-2">Status</p>
+        <p>
+          A living draft. Names are working titles; entries change; the
+          <a href="/changelog/" class="no-underline">changelog</a> says what did.
+        </p>
+        <p class="mt-6 eyebrow mb-2">Credit</p>
+        <p>
+          Written and built by {SITE.author}. {SITE.license}
+        </p>
+      </aside>
+    </div>
+  </div>
+</BaseLayout>
