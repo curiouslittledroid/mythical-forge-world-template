@@ -82,6 +82,12 @@ import { SITE, contentDescriptors, whatToExpect } from '../lib/site';
         <p>
           Written and built by {SITE.author}. {SITE.license}
         </p>
+        <!-- The theme bundles IBM Plex, and the OFL asks that its notice travel with the fonts the
+             built site serves. This line is that notice, in the place a reader looks. -->
+        <p class="mt-4">
+          The machinery: Astro, Tailwind and Pagefind (MIT). The typefaces are IBM Plex,
+          <span class="whitespace-nowrap">&copy; IBM Corp.</span>, under the SIL Open Font Licence 1.1.
+        </p>
       </aside>
     </div>
   </div>

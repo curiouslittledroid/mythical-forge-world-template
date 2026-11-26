@@ -121,7 +121,7 @@ text = setkey(text, "tagline", title)
 text = setkey(text, "description",
               f'"{title} — a world for tabletop roleplaying, being built in the open."')
 text = setkey(text, "author", name)
-text = setkey(text, "license", "All rights reserved")
+text = setkey(text, "license", '"All rights reserved. Use it at your table."')
 text = setkey(text, "game_ready_repo", f"../{slug}-gameready")
 
 # The site section.
@@ -150,6 +150,34 @@ if "REPLACE_ME" in text:
 Path(path).write_text(text, encoding="utf-8")
 print(f"init-world: {path} rewritten")
 PY
+
+# ---------------------------------------------------------------------------------------------
+# 2b. The world's own licence. The template's own licence file says "replace this file"; this is
+# that, written. A world bible starts restrictive, because a licence granted cannot be taken back.
+# ---------------------------------------------------------------------------------------------
+python3 - "$TITLE" "$NAME" <<'WORLDLICENCE'
+import datetime, sys
+from pathlib import Path
+
+title, name = sys.argv[1:3]
+year = datetime.date.today().year
+Path("LICENSE").write_text(f"""All rights reserved.
+
+Copyright (c) {year} {name}. Everything in this repository that is not the worldkit's machinery --
+the lore, the notes, the prose, the maps and the art of {title} -- is the author's, and no licence is
+granted to copy, adapt or redistribute it. Run games in it, talk about it, and enjoy it; do not
+republish the codex.
+
+THE MACHINERY IS NOT OURS. `tools/` (except `tools/local/`), `tools/docs/`, `meta/templates/`, the
+site theme under `site/` and the agent prompts in `.pi/prompts/` are the worldkit's, vendored at the
+tag in `TOOLING_VERSION`. They travel with their own licences, which is the point of having one: MIT
+for the tools (`tools/LICENSE`) and CC BY 4.0 for the prose (`tools/LICENSE-CONTENT`).
+
+If you later want to let others reuse {title} -- a permissive wiki, a fan policy, a commercial
+licence -- replace this file. Everything published before the change keeps the licence it had.
+""", encoding="utf-8")
+print("init-world: LICENSE written (all rights reserved)")
+WORLDLICENCE
 
 # ---------------------------------------------------------------------------------------------
 # 3. The two lines of AGENTS.md that carry the identity.
@@ -209,7 +237,9 @@ say "  2. Open ROADMAP.md and start at Step 0b. Work by interview; the answers a
 say "  3. Write your own site/public/favicon.svg (a placeholder ships) and the hero art."
 say "  4. Fill anything still marked REPLACE — $todo file(s) carry prompts in principles/ and"
 say "     meta/canon-digest.md, and lint will warn about each one until you do."
-say "  5. Check world.config.yaml: spelling (british?), features, content_descriptors, and the"
+say "  5. Read LICENSE — all rights reserved, which is the right default. Change it if you want"
+say "     others to reuse the world: a licence you grant cannot be taken back."
+say "  6. Check world.config.yaml: spelling (british?), features, content_descriptors, and the"
 say "     site's sections — every note kind the world uses needs a section to live in."
 say ""
 say "Then: python3 tools/lint.py && tools/verify-world.sh"

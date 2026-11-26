@@ -46,7 +46,15 @@ you know it is done.
 Work in interview rounds, not dictation: an agent proposing numbered questions with recommendations,
 you accepting or changing them. See the protocol in `AGENTS.md`.
 
-### 4. Keep the machinery current
+### 4. Decide the licence — or leave it
+
+`init-world.sh` wrote `LICENSE` as **all rights reserved**, which is the right default for a world
+bible: you can loosen a licence later, but not tighten one, because everything already published
+keeps the licence it had. The worldkit's own material you are carrying — `tools/`, `tools/docs/`,
+`meta/templates/`, the site theme, the prompts — is MIT and CC BY 4.0 (`tools/LICENSE`,
+`tools/LICENSE-CONTENT`) and is not yours to relicense.
+
+### 5. Keep the machinery current
 
 ```bash
 tools/sync-tooling.sh v1.0.x     # fetch a worldkit tag
