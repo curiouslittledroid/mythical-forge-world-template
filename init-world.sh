@@ -7,7 +7,8 @@
 #   ./init-world.sh --keep-example                   # keep example-world/ to read
 #   ./init-world.sh --init-git                       # also discard .git and start a fresh history
 #
-# What it changes: world.config.yaml (the identity values, all of them), the AGENTS.md title and
+# What it changes: world.config.yaml (the identity values, all of them), the AGENTS.md title,
+# package.json's name and
 # pitch line, and nothing else. What it removes: `template: true` (so the tooling sync stops
 # mirroring the demo world) and example-world/ (unless asked to keep it).
 #
@@ -101,7 +102,7 @@ say ""
 #    is provisional (`.invalid` url, a generic description) rather than a placeholder in disguise.
 # ---------------------------------------------------------------------------------------------
 python3 - "$CONFIG" "$TITLE" "$ID" "$SLUG" "$NAME" <<'PY'
-import re, sys
+import json, re, sys
 from pathlib import Path
 
 path, title, wid, slug, name = sys.argv[1:6]
@@ -123,6 +124,15 @@ text = setkey(text, "description",
 text = setkey(text, "author", name)
 text = setkey(text, "license", '"All rights reserved. Use it at your table."')
 text = setkey(text, "game_ready_repo", f"../{slug}-gameready")
+
+# The fork's own package name. It is not published, but a fork whose package.json says
+# `REPLACE_ME` fails the template fork's "nothing left behind" check, and one named after the
+# template is just wrong. The dependency pinned there is the engine's schemas (Phase 5 B4).
+pkg = Path("package.json")
+if pkg.exists():
+    data = json.loads(pkg.read_text(encoding="utf-8"))
+    data["name"] = slug
+    pkg.write_text(json.dumps(data, indent=2) + "\n", encoding="utf-8")
 
 # The site section.
 text = setkey(text, "url", f"https://{slug}.invalid")
