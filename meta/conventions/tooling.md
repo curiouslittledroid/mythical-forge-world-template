@@ -24,6 +24,7 @@ Everything else is by **what changed** — not by habit.
 | You just… | Run | It catches |
 |---|---|---|
 | wrote or edited a note | `python3 tools/lint.py` (or `… world/places` for one folder) | frontmatter, ids, filenames, dead or ambiguous links, undeclared flags, spelling (conventions §16) |
+| changed `world.config.yaml`, or the note a `vault.notes` id names | `python3 tools/check_config.py` | an id nothing has, a block that is missing or shaped wrong, a published tag outside the vocabulary, a note the site would never show, the two config readers disagreeing |
 | added or renamed a lore `##` section | `python3 tools/disclosure.py --list`, then `--check` | a section no one has classified. Unclassified fails closed as `earned`, so a leak is silent (conventions §7) |
 | renamed or renumbered a document's sections | `python3 tools/check_citations.py` | a `§N` citation that no longer resolves (conventions §16.1) |
 | wrote an engine block, or moved an id or a flag | `node tools/transform.mjs`, then `node tools/validate-world.mjs`, then `node tools/thread-check.mjs` | a schema error, a reference to an id that does not exist, a flag nobody sets or reads, a thread whose interface and blocks disagree |
@@ -33,7 +34,9 @@ Everything else is by **what changed** — not by habit.
 | changed a workflow | `python3 tools/check_workflows.py` | a duplicate key, which GitHub refuses — and then the workflow runs under its file path, failing every run |
 | changed a YAML block in the authoring guide | `node tools/check-guide.mjs` | a tutorial teaching an engine block the schema rejects |
 | want to know what CI will say | the gate below | the same four checks, in the same order |
-| updated the worldkit | `tools/sync-tooling.sh <tag>`, then `tools/verify-world.sh` | a diff you did not review, then the whole pipeline on your content |
+| want to know what the newest worldkit is | `tools/sync-tooling.sh --dry-run` — with no tag it takes the newest, and prints every change it would make | a diff you decided against, after seeing it |
+| updated the worldkit | `tools/sync-tooling.sh` (the newest), or `tools/sync-tooling.sh <tag>` to pin deliberately; then `tools/verify-world.sh` | a diff you did not review, then the whole pipeline on your content |
+| the kit is unreachable, or you are offline | download `worldkit-<tag>.tar.gz` from the kit's releases, then `tools/sync-tooling.sh --archive <file>` | the same update, from the release file instead of the network |
 | changed lore in bulk, or anything in the pipeline | `tools/verify-world.sh` | everything the tools can prove |
 | am about to publish the site | the publish order below | a leak, an unread audit, a dead link |
 
@@ -54,13 +57,14 @@ word on a note with an `engine` block.
 ## Before a commit: the gate
 
 ```bash
+python3 tools/check_config.py
 python3 tools/lint.py
 python3 tools/check_workflows.py
 python3 tools/check_citations.py
 python3 tools/disclosure.py --check
 ```
 
-This is `.github/workflows/checks.yml` minus the tooling's own test suites and minus the pipeline. It
+This is `.github/workflows/checks.yml` minus the pipeline. It
 runs on every push, so running it locally only moves the failure earlier — which is the point. When
 the change completes a roadmap step or touches a flag, an id or a scenario, run
 `tools/verify-world.sh` before committing too: the vault's own proof is not in the fast gate.
@@ -70,9 +74,14 @@ Three tools have a `--strict`: `lint` and `voice_stale` turn warnings into failu
 and neither should a commit: a warning like `REPLACE left in prose` is a to-do, not a defect. Reach
 for `--strict` when you want the warnings worked through, not when you want the gate.
 
-The test suites (`tools/test_*.py`) are the kit's tests, and `checks.yml` runs every one on every
-push. Locally they are worth running only when you are diagnosing one: `python3 tools/test_lint.py`,
-and so on.
+The test suites (`tools/test_*.py`) are the kit's tests: fixtures asserting the kit's own code, and
+the kit runs every one in its own CI on every commit. **Nothing runs them here**, on purpose. A
+release cannot be tagged with one failing, the checks above cover what a suite could have told you
+about your world, and a red run you cannot fix teaches you to ignore the tab. They ship because
+`tools/` is copied whole, and they are worth running by hand when a *tool* misbehaves rather than a
+note — `python3 tools/test_lint.py`, `python3 tools/test_check_config.py`, and so on. A vendored
+copy that has drifted from its pin is not a suite's question: `tools/sync-tooling.sh --dry-run`
+shows every file that differs, and `tooling-drift.yml` compares them with the tag every Monday.
 
 ## Before you publish the site
 
@@ -134,7 +143,7 @@ Everything not listed as writing is read-only, and safe to run to look.
 | `site_export.py` | `site/src/content/generated/`, `site/src/data/generated/` (both git-ignored), and the committed `site/audit/latest.json` + `history.json` |
 | `atlas_tables.py` | `maps/atlas-features.md`. Commit it with the YAML it came from; `--check` writes nothing |
 | `atlas_previews.sh` | the PNG previews in `maps/svg/preview/` |
-| `sync-tooling.sh` | `tools/` (except `tools/local/`), `meta/conventions/`, `meta/templates/`, `.pi/prompts/`, the theme under `site/`, three workflows, and `TOOLING_VERSION`. `--dry-run` writes nothing |
+| `sync-tooling.sh` | `tools/` (except `tools/local/`), `meta/conventions/`, `meta/templates/`, `.pi/prompts/`, the theme under `site/`, three workflows, and `TOOLING_VERSION`. `--dry-run` writes nothing. It fetches the kit's **release payload** — an archive, so no token and no repository access — and `--archive <file>` does it with no network at all |
 | `sync-agent-protocol.py` | the marked protocol region of `AGENTS.md`. `--check` writes nothing and exits 1 on drift |
 | `lore_export.py` | nothing, unless `--json PATH` names a file |
 | `init-world.sh` | the identity values, the licence and (with `--init-git`) the history. Template only, once |
@@ -145,12 +154,18 @@ Everything not listed as writing is read-only, and safe to run to look.
 
 | Workflow | When | What it runs |
 |---|---|---|
-| `checks.yml` | every push and pull request | the gate above, the tooling's test suites, and — with a `WORLDKIT_PACKAGES_TOKEN` secret — `verify-world.sh` |
+| `checks.yml` | every push and pull request | the gate above, and — with a `WORLDKIT_PACKAGES_TOKEN` secret — `verify-world.sh` |
 | `tooling-drift.yml` | Mondays, and when `TOOLING_VERSION` moves | is the pin behind the kit, and do the vendored files still match it byte for byte? A hand-edit to `tools/` is caught here before the next sync reverts it |
 | `site.yml` | manual, from Actions | the site build, the audit gate and the link check; deploys only when asked |
 
 A red drift check is not a broken world: it is a behind or hand-edited pin. The fix is
-`tools/sync-tooling.sh <tag>` and one commit, and the job says so.
+`tools/sync-tooling.sh <tag>` and one commit, and the job names the tag it compared against.
+
+**Where versions come from.** The kit publishes a release per tag at
+`https://github.com/curiouslittledroid/mythical-forge-worldkit/releases`. Each one carries
+`worldkit-<tag>.tar.gz` and its `.sha256` — the payload the sync downloads, and the file
+`--archive` takes — and its notes say what changed for a world, including anything to do by hand.
+A fork of the kit points the sync at itself with `WORLDKIT_REPO`, which wins over all of this.
 
 ## When a tool refuses
 
@@ -160,8 +175,12 @@ A red drift check is not a broken world: it is a behind or hand-edited pin. The 
 | `sync-tooling: refusing to run` | the tree is dirty in files the sync replaces, or the sync would **delete** a file inside a directory the kit owns. Read the list; `--force` is for when the list is right |
 | `lint.py` exits 2 | a usage error (a bad path or flag), not a note. Nothing was read |
 | `disclosure.py --check` fails on a section you consider fine | the class comes from the first rule that applies (conventions §7); `Hooks`, `Author Notes`, `Open questions`, `Links` and `Engine` are not lore. Fix the heading, or mark the section |
+| `check_citations.py` binds a `§N` to a note that numbers nothing | the nearest document named *before* the number was a note, not the document you meant. Name the document — or the section — in the same sentence: that is the whole fix |
 | `check_citations.py` prints a **NOTE** | the document is not in this repository (a kit prompt citing a world's note, say). It is visible, not an error. `citations: ignore` is for what is genuinely uncheckable |
 | a workflow passes `check_workflows.py` and GitHub still refuses it | that check looks for duplicate keys only. Everything else about a workflow is GitHub's to validate, on push |
+| `check_config.py` prints a **WARN** | consistent, but something declared is missing or something used is undeclared: a process document that is not there, a scenario directory that is not there, a published tag outside `tags-vocabulary`, or a note kind no `site.sections` entry lists (that note is not published). None of it fails the run; fix it or leave it, and lint lists the rest |
+| `check_config.py` prints a **NOTE** | the value is still the template's `REPLACE`. It is your to-do list, not a failure — `init-world.sh` filled in the identity, not the vocabularies |
+| `check_config.py` says the two readers disagree | `kit_config.py` and `kit_config.mjs` read your config differently. That is a defect in the tooling, not in the config: report it against the kit's pin rather than editing around it, because the two halves of the world would then be built from different answers |
 | a tool says the site is switched off | `site_export.py` requires the `site` feature in `world.config.yaml` and refuses rather than guessing. The atlas, testimony and voice tools work from their own files, so an unused feature simply has nothing to read |
 
 ## Where the rules live
