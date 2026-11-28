@@ -60,16 +60,16 @@ NO_SHEET_NOTE = "(no sheet)"
 
 
 def slug_of(target: str) -> str:
-    """`the-heartland` from `[[the-heartland|the Heartland]]`; a path segment if one is given."""
+    """`the-example` from `[[the-example|The Example]]`; a path segment if one is given."""
     return Path(target.strip().replace("\\", "")).name.removesuffix(".md")
 
 
 def targets_of(text: str) -> list[str]:
     """Every place a passage names, as note slugs, in order of first appearance.
 
-    The backslash-pipe is the table escape for a pipe inside a wikilink (conventions, and
-    site.md 2.2), so it is unescaped first: a range row is a table row, and every wikilink in one
-    is escaped.
+    The backslash-pipe is the table escape for a pipe inside a wikilink (the conventions, and the
+    kit's `site.md` 2.2), so it is unescaped first: a range row is a table row, and every wikilink
+    in one is escaped.
     """
     out = []
     for wikilink, path in LINK_RE.findall(text.replace("\\|", "|")):

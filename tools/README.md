@@ -6,13 +6,18 @@ Repository, the public site, the atlas, and the checks that keep the vault hones
 **Nothing here is specific to one world.** Every world value lives in `world.config.yaml` at the
 vault root and in the world's fenced vault blocks, both read by `kit_config` (Python and Node).
 A script that needs to know the world's name, its section list, its era vocabulary or where its
-flags note lives asks the config. See `docs/extraction.md` for the design and the reasoning.
+flags note lives asks the config. The design and the reasoning are the kit's, in its own
+`docs/extraction.md`; a world does not receive that file.
+
+**Which script to run, and when:** the kit's `meta/conventions/tooling.md`. It is the task-first
+map — what you just changed, what proves it, what each tool writes and what it will not catch. This
+file is the reference: one row per script, its purpose, its flags.
 
 Standard library Python 3.12+; Node 18+ for the transformer and the site.
 
 ## Setup: the engine's schemas
 
-The Node tools read the engine's own schemas and its YAML implementation (Design 23 §4.1). They come
+The Node tools read the engine's own schemas and its YAML implementation. They come
 from one of two places, and `tools/kit_config.mjs` is the only code that decides which:
 
 | Source | When | How |
@@ -20,10 +25,12 @@ from one of two places, and `tools/kit_config.mjs` is the only code that decides
 | **The published package** — `@curiouslittledroid/authored-content`, pinned exactly in this repository's root `package.json` | The default, and what CI uses | `export NODE_AUTH_TOKEN=<a PAT with read:packages>`, then `npm install`. The repository's `.npmrc` points at GitHub Packages; without a token the install is a 401 |
 | **A local checkout** — `packages/authored-content` in the platform repository | Developing an unreleased schema change | `export MYTHICAL_FORGE_ROOT=/path/to/mythical-forge/main` — it wins when set |
 
-A tool that finds neither stops immediately and names both fixes. A `MYTHICAL_FORGE_ROOT` pointing
-somewhere without `packages/authored-content` is its own loud error, rather than a stray `require`
-much later. In a bare-repo-plus-worktree layout the path is the *worktree*
-(`.../mythical-forge/main`), not the parent.
+A tool that finds neither stops immediately and names the install — the token and `npm install` —
+because the message is written for an author, who has the vault and nothing else; the checkout is
+for developing a schema change and is never offered as the way to get started. A
+`MYTHICAL_FORGE_ROOT` pointing somewhere without `packages/authored-content` is its own loud error,
+rather than a stray `require` much later. In a bare-repo-plus-worktree layout the path is the
+*worktree* (`.../mythical-forge/main`), not the parent.
 
 ## Configuration
 
@@ -44,10 +51,12 @@ to run rather than guessing.
 | `kit_config.py` | Reads the world config and its blocks. Import it; also runnable to print a summary. |
 | `kit_config.mjs` | The same, for Node. `loadConfig()`, `mfRoot()`, `block()`, `notePath()`. |
 | `yaml_subset.py` | The strict YAML reader behind both config readers and the atlas. |
-| `lint.py` | The vault linter (only standard-library Python). See the kit's `docs/conventions.md` §16. |
+| `lint.py` | The vault linter (only standard-library Python). See the kit's `meta/conventions/conventions.md` §16. |
 | `check_workflows.py` | Loads every `.github/workflows/*.yml` far enough to find a **duplicate key**. A lenient parser keeps the last one; GitHub refuses the file, and the workflow then appears in Actions named by its path, failing every run. Writes nothing. |
 | `test_check_workflows.py` | Its tests. |
-| `check_citations.py` | Resolves every `§N` citation against the document it names and fails on one that does not exist. See the kit's `docs/conventions.md` §16.1. |
+| `check_citations.py` | Resolves every `§N` citation against the document it names and fails on one that does not exist. See the kit's `meta/conventions/conventions.md` §16.1. |
+| `check_doc_examples.py` | Checks the world-facing documents themselves (and, with `--all`, the whole machinery): every engine id they name must exist in the demo world (`example-world/`) or be an obvious placeholder, and none of the extracted world's phrases may appear. The demo world is the one sanctioned fixture; a doc that teaches another world's ids teaches a reader to copy a vault where nothing resolves. |
+| `test_check_doc_examples.py` | Its tests: a demo id, a placeholder, a predicate, a source-world phrase, and the no-demo-world skip. |
 | `test_lint.py` | Its tests. |
 | `testkit.py` | Fixture helper for the suites (config + vocabulary note). |
 | `test_kit_config.py` | Tests for the two config readers and the subset parser, including a **parity test** that the Python and Node readers agree on the live config. |
@@ -56,7 +65,7 @@ to run rather than guessing.
 | `voice_lint.py` | Checks each testimony against its teller's voice sheet: vocabulary the teller never says, and places outside their range. |
 | `voice_stale.py` | Reports accounts that claim to describe the present but whose surrounding canon has moved since. Reads the present year from the `chronology` block. |
 | `test_voice.py` | Their tests. |
-| `lore_export.py` | Step 14: builds the **Lore corpus** — one chunk per paragraph, layer-split history events, derived audience, wikilink subjects — and prints the calibration report. `--json PATH` writes every chunk record. See the kit's `docs/conventions.md` §7.5. |
+| `lore_export.py` | Step 14: builds the **Lore corpus** — one chunk per paragraph, layer-split history events, derived audience, wikilink subjects — and prints the calibration report. `--json PATH` writes every chunk record. See the kit's `meta/conventions/conventions.md` §7.5. |
 | `test_lore_export.py` | Its tests: chunking, the layer split, the audience rules, tier and race resolution, wikilink subjects. |
 | `transform.mjs` | Codex → Game Ready Repository. Deterministic. |
 | `validate-world.mjs` | Validates a generated Game Ready Repository with `@mythical-forge/authored-content`. |
@@ -64,13 +73,13 @@ to run rather than guessing.
 | `codex-threads.yaml` (generated) | Written by `transform.mjs`: each thread's members and interface. Tooling only; not an entity. |
 | `simulate-world.mjs` | The idle-world and scenario simulator; generates fast-forward start states; reports coverage. |
 | `verify-world.sh` | **A world's pipeline proof.** Copies the vault to a throwaway directory and runs the whole pipeline on the world's **own** content: lint → disclosure → transform → validate → thread-check → voice → every scenario in `vault.scenarios`. **It overlays nothing.** It used to overlay a copy of the kit's teaching example, which meant every world carried a duplicate of a fixture it did not own — and a broken toolchain looked exactly like broken lore. The division now: `verify-kit.sh` (in the kit) proves the **toolchain** against the demo world; this proves the **world**. |
-| `site_export.py` | Exports the **player-facing site content** from the `open` part of every section (see the kit's `docs/site.md`). Imports `disclosure.classify`; never re-derives it. Emits `site.json` so the Astro build gets the world's branding. |
+| `site_export.py` | Exports the **player-facing site content** from the `open` part of every section (see the kit's `meta/conventions/site.md`). Imports `disclosure.classify`; never re-derives it. Emits `site.json` so the Astro build gets the world's branding. |
 | `test_site_export.py` | Its tests: one per redaction rule. |
 | `site_link_check.py` | Fails the build on any internal link to a file that does not exist. |
 | `site_audit_report.py` | Prints the publish audit into a CI run summary; `--strict` gates the build. |
-| `sync-tooling.sh` | **A world's updater.** Fetches a release tag of the worldkit and replaces this repo's `tools/` (except `tools/local/`), the kit's `docs/` into `tools/docs/`, the templates and the theme. It is the one command that moves a world's `TOOLING_VERSION` pin, and its diff is the whole review surface. |
-| `check-guide.mjs` | Checks every `yaml` block in the campaign authoring guide against the engine's schema. The guide is a kit document, so its path is **resolved**, not hardcoded: `<kit>/docs/` in the kit, a world's vendored `tools/docs/`, or an argument. |
-| `sync-agent-protocol.py` | Writes the kit's `docs/agent-protocol.md` into `AGENTS.md`, between the marked region. `--check` fails on drift and is what CI runs. A world's `AGENTS.md` is its own brief plus this region; the protocol is duplicated on purpose, because an agent may never follow a link out of the repository, and the duplication is kept honest by this tool. |
+| `sync-tooling.sh` | **A world's updater.** Fetches a release tag of the worldkit and replaces this repo's `tools/` (except `tools/local/`), the kit's documents into `meta/conventions/`, the templates and the theme. It is the one command that moves a world's `TOOLING_VERSION` pin, and its diff is the whole review surface. |
+| `check-guide.mjs` | Checks every `yaml` block in the campaign authoring guide against the engine's schema. The guide is a kit document, so its path is **resolved**, not hardcoded: `template/meta/conventions/` in the kit, a world's `meta/conventions/`, or an argument. |
+| `sync-agent-protocol.py` | Writes the kit's `meta/conventions/agent-protocol.md` into `AGENTS.md`, between the marked region. `--check` fails on drift and is what CI runs. A world's `AGENTS.md` is its own brief plus this region; the protocol is duplicated on purpose, because an agent may never follow a link out of the repository, and the duplication is kept honest by this tool. |
 | `atlas_yaml.py` | Reads and validates `maps/atlas-features.yaml` (the reader is `yaml_subset.py`; this owns the atlas schema). |
 | `atlas_tables.py` | Renders `maps/atlas-features.md` from the YAML; `--check` fails if it is stale. |
 | `atlas_diff.py` | Compares the YAML with `HEAD` or a file; reports added, removed, moved and changed features. |
@@ -79,7 +88,7 @@ to run rather than guessing.
 
 ## Atlas tools
 
-The mechanism, the data schema and the recipes are the kit's `docs/atlas.md`; a world's own frame,
+The mechanism, the data schema and the recipes are the kit's `meta/conventions/atlas.md`; a world's own frame,
 sheets and drawing rules are that world's business. Short version:
 
 ```
@@ -100,7 +109,7 @@ node tools/transform.mjs [--out <game-ready-repo>]
 node tools/validate-world.mjs [--repo <game-ready-repo>]
 node tools/thread-check.mjs   [--repo <game-ready-repo>]
 node tools/simulate-world.mjs --coverage   # every scenario; --quiet for results only; --md for a table
-node tools/simulate-world.mjs campaigns/dustport-pilot/scenarios/05-rescue-then-idle.yaml   # one scenario, full timeline
+node tools/simulate-world.mjs campaigns/<campaign>/scenarios/<name>.yaml   # one scenario, full timeline
 ```
 
 The Game Ready Repository defaults to `world.game_ready_repo` in the config; the flags note is

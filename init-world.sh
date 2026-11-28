@@ -4,13 +4,16 @@
 #
 #   ./init-world.sh                                  # ask four questions
 #   ./init-world.sh --title "Ashfall" --yes          # non-interactive (id and slug derived)
-#   ./init-world.sh --keep-example                   # keep example-world/ to read
 #   ./init-world.sh --init-git                       # also discard .git and start a fresh history
+#   ./init-world.sh --fetch-example                  # put example-world/ back, from the kit
 #
 # What it changes: world.config.yaml (the identity values, all of them), the AGENTS.md title,
-# package.json's name and
-# pitch line, and nothing else. What it removes: `template: true` (so the tooling sync stops
-# mirroring the demo world) and example-world/ (unless asked to keep it).
+# package.json's name and pitch line, and nothing else. What it removes: `template: true` (so the
+# tooling sync stops mirroring the demo world).
+#
+# example-world/ STAYS. It is the demo world the kit ships, and the one worked example of every
+# note type, a complete thread and a running campaign. `--fetch-example` puts it back at this
+# repository's TOOLING_VERSION if it was deleted by hand; it does nothing else and asks nothing.
 #
 # It does NOT touch git history unless you pass --init-git: a fork's history is yours to decide
 # about, and destroying it by default would be rude. It does not touch tools/ (the kit's) or your
@@ -22,7 +25,8 @@ cd "$ROOT"
 CONFIG="world.config.yaml"
 AGENTS="AGENTS.md"
 
-TITLE="" ID="" SLUG="" NAME="" ASSUME_NO=0 KEEP_EXAMPLE=0 INIT_GIT=0
+TITLE="" ID="" SLUG="" NAME="" ASSUME_NO=0 FETCH_EXAMPLE=0 INIT_GIT=0
+KIT_REPO="${WORLDKIT_REPO:-https://github.com/curiouslittledroid/mythical-forge-worldkit}"
 
 die() { echo "init-world: $*" >&2; exit 1; }
 say() { printf '%s\n' "$*"; }
@@ -36,8 +40,8 @@ while [ $# -gt 0 ]; do
     --id)      ID="${2:-}";    shift 2 ;;
     --slug)    SLUG="${2:-}";  shift 2 ;;
     --yes|-y)  ASSUME_NO=1;    shift ;;
-    --keep-example) KEEP_EXAMPLE=1; shift ;;
-    --init-git)     INIT_GIT=1;     shift ;;
+    --fetch-example) FETCH_EXAMPLE=1; shift ;;
+    --init-git)      INIT_GIT=1;      shift ;;
     -h|--help) usage; exit 0 ;;
     *) die "unknown argument: $1 (try --help)" ;;
   esac
@@ -45,6 +49,52 @@ done
 
 [ -f "$CONFIG" ] || die "$CONFIG not found: run this from the repository root"
 [ -f "$AGENTS" ] || die "$AGENTS not found: is this the template?"
+
+# ---------------------------------------------------------------------------------------------
+# 0. --fetch-example: repair, not initialisation. The demo world is the kit's, so it can be
+#    re-fetched at the pin this repository already holds rather than copied from a friend's fork.
+#    Nothing here touches the world's identity, and it refuses to overwrite a copy that is still
+#    there: only a deletion is repaired.
+# ---------------------------------------------------------------------------------------------
+fetch_example() {
+  local pin tmp
+  if [ -e example-world ]; then
+    die "example-world/ is already here; remove it first if you want a fresh copy"
+  fi
+  pin="$(cat TOOLING_VERSION 2>/dev/null || true)"
+  case "$pin" in unreleased|"") pin="" ;; esac
+  tmp="$(mktemp -d)"
+  # `tmp` is local, so it is gone when the trap fires: the default keeps `set -u` quiet.
+  trap 'rm -rf "${tmp:-}"' EXIT
+  say "-> fetching example-world/ at ${pin:-the default branch} from $KIT_REPO"
+  if [ -e "$KIT_REPO/.git" ]; then  # -e, because a worktree's .git is a file
+    # A local checkout: the tests use this, so the fetch needs no network.
+    git clone --quiet "$KIT_REPO" "$tmp/kit" || die "cannot clone $KIT_REPO"
+    if [ -n "$pin" ] && ! git -C "$tmp/kit" checkout --quiet "$pin" 2>/dev/null; then
+      say "   (that checkout has no $pin: using its default branch)"
+    fi
+  elif [ -n "$pin" ]; then
+    # A tag clone lands detached, and git's advice about that is noise in a copy-and-exit.
+    git clone --quiet --config advice.detachedHead=false \
+      --branch "$pin" --depth 1 "$KIT_REPO" "$tmp/kit" \
+      || die "cannot fetch $KIT_REPO at $pin (offline, or a repository this user cannot read)"
+  else
+    git clone --quiet --depth 1 "$KIT_REPO" "$tmp/kit" \
+      || die "cannot fetch $KIT_REPO (offline, or a repository this user cannot read)"
+  fi
+  [ -d "$tmp/kit/template/example-world" ] \
+    || die "$KIT_REPO has no template/example-world/ at ${pin:-the default branch}"
+  cp -R "$tmp/kit/template/example-world" example-world
+  say "-> example-world/ is back: $(find example-world -name '*.md' | wc -l | tr -d ' ') notes."
+  say "   Read it, then keep it: it is the kit's worked example, not this world's canon."
+}
+
+if [ "$FETCH_EXAMPLE" -eq 1 ]; then
+  [ -z "$TITLE$NAME$ID$SLUG" ] && [ "$INIT_GIT" -eq 0 ] \
+    || die "--fetch-example is a repair on its own: drop the other options"
+  fetch_example
+  exit 0
+fi
 
 # ---------------------------------------------------------------------------------------------
 # 1. The four questions. Every default is derived from the repository directory's name, so that
@@ -150,10 +200,6 @@ text = re.sub(r"^  scenarios:.*$\n", "", text, flags=re.M)
 text = re.sub(r"^\s+blurb: \"REPLACE_ME[^\"]*\"$\n", "", text, flags=re.M)
 text = re.sub(r"^  # The landing page's \"Ways in\" cards\..*\n(^  #.*\n)*", "", text, flags=re.M)
 
-# The switch that mirrors the demo world. init-world.sh is removing the demo world instead.
-text = re.sub(r"^template: true$\n", "", text, flags=re.M)
-text = re.sub(r"^# This repository IS the template.*\n(^#.*\n)*", "", text, flags=re.M)
-
 if "REPLACE_ME" in text:
     leftover = [l for l in text.splitlines() if "REPLACE_ME" in l]
     raise SystemExit("init-world: REPLACE_ME survived in " + path + ":\n  " + "\n  ".join(leftover))
@@ -178,7 +224,7 @@ the lore, the notes, the prose, the maps and the art of {title} -- is the author
 granted to copy, adapt or redistribute it. Run games in it, talk about it, and enjoy it; do not
 republish the codex.
 
-THE MACHINERY IS NOT OURS. `tools/` (except `tools/local/`), `tools/docs/`, `meta/templates/`, the
+THE MACHINERY IS NOT OURS. `tools/` (except `tools/local/`), `meta/conventions/`, `meta/templates/`, the
 site theme under `site/` and the agent prompts in `.pi/prompts/` are the worldkit's, vendored at the
 tag in `TOOLING_VERSION`. They travel with their own licences, which is the point of having one: MIT
 for the tools (`tools/LICENSE`) and CC BY 4.0 for the prose (`tools/LICENSE-CONTENT`).
@@ -206,16 +252,9 @@ print(f"init-world: {path} retitled")
 PY
 
 # ---------------------------------------------------------------------------------------------
-# 4. The demo world, and git.
+# 4. Git. The demo world stays: it is the kit's worked example, and a world with no example of a
+#    finished note has to take the note shapes on faith.
 # ---------------------------------------------------------------------------------------------
-if [ "$KEEP_EXAMPLE" -eq 1 ]; then
-  say "-> keeping example-world/ (the demo world) for reference"
-elif [ -d example-world ]; then
-  rm -rf example-world
-  say "-> removed example-world/ (the demo world); it comes back with a sync while \`template: true\`"
-  say "   is set, so do not set that switch again by hand"
-fi
-
 if [ "$INIT_GIT" -eq 1 ]; then
   if [ -d .git ]; then rm -rf .git; fi
   git init -q -b main

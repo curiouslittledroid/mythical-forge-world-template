@@ -53,7 +53,7 @@ BLOCK_INFO = {
     "site_vocabulary": "site-vocabulary",
 }
 
-_TOP_KEYS = {"version", "world", "vault", "features", "site", "template"}
+_TOP_KEYS = {"version", "world", "vault", "features", "site"}
 _WORLD_KEYS = {"id", "title", "slug", "tagline", "description", "author", "license", "overland",
                "game_ready_repo"}
 _VAULT_KEYS = {"notes", "process_docs", "scenarios", "spelling"}
@@ -101,7 +101,7 @@ class Site:
     deferred_kinds: frozenset[str] = field(default_factory=frozenset)
     # --- what the theme needs and must not hardcode ---
     content_descriptors: tuple[str, ...] = ()
-    # The year-zero prefix and its name in prose ("T0", "the Severing"). The theme formats a page's
+    # The year-zero prefix and its name in prose ("T0", the world's year-zero name). A page's
     # offset; what the zero *means* is the world's.
     t0_prefix: str = "T0"
     t0_epoch: str = ""
@@ -152,10 +152,6 @@ class Config:
             if w.get("game_ready_repo") else self.root.parent / f"{self.slug}-gameready"
 
         self.features: frozenset[str] = frozenset(data.get("features", []))
-        # `template: true` marks a repository that is the world TEMPLATE rather than a world. It is
-        # the one switch the sync reads: a template also mirrors the kit's example world, and a
-        # world does not. Nothing in the tools behaves differently; the vault is a real (empty) one.
-        self.template: bool = bool(data.get("template", False))
         self._vault: dict = data.get("vault", {})
         self._note_ids: dict[str, str] = dict(self._vault.get("notes", {}))
         self.process_docs: frozenset[str] = frozenset(self._vault.get("process_docs", []))

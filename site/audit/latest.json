@@ -7,7 +7,7 @@
     "REPLACE"
   ],
   "flattened_links": [],
-  "generated": "2026-11-26",
+  "generated": "2026-11-28",
   "internal_references": [],
   "keyword_hits": [],
   "links": 0,
@@ -19,7 +19,7 @@
   "skipped_notes": [
     {
       "note": "world/_index.md",
-      "reason": "no open content"
+      "reason": "kind 'INDEX' has no section"
     },
     {
       "note": "world/creatures/_index.md",

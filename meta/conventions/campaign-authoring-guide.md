@@ -1,6 +1,6 @@
 # Campaign and Thread Authoring Guide
 
-**Summary:** A step-by-step tutorial for building a **thread**, a **Campaign**, its **Modules** and **Quests**, and every engine block they need. `docs/thread-pattern.md` is the reference (the *why*). This guide is the *how*: it walks one small example from a blank page to a passing test. It will be replaced by an authoring tool one day; until then it is the tool.
+**Summary:** A step-by-step tutorial for building a **thread**, a **Campaign**, its **Modules** and **Quests**, and every engine block they need. `meta/conventions/thread-pattern.md` is the reference (the *why*). This guide is the *how*: it walks one small example from a blank page to a passing test. It will be replaced by an authoring tool one day; until then it is the tool.
 
 > **Status: staged, and not yet neutral.** This guide moved out of a world's `meta/` at extraction T3f
 > (decision D31) and is de-branded at T7: its worked example is already the world-agnostic
@@ -62,7 +62,7 @@ A **block** is a fenced `engine` code block of YAML inside a note. The transform
 
 ## 1.3 How the pieces link (there is no thread entity)
 
-The engine has no `THREAD` entity. **Pieces are linked by shared ids and flags.** A Want's deadline sets a flag; an event's `when` tests that flag; the event sets another flag; a Quest tests it. Read `docs/thread-pattern.md` section 7.2 for the full table. The one rule to remember: **the armed flag is the thread's switch.** A Campaign sets it; the thread's first Wants and events test it. No armed flag, no thread.
+The engine has no `THREAD` entity. **Pieces are linked by shared ids and flags.** A Want's deadline sets a flag; an event's `when` tests that flag; the event sets another flag; a Quest tests it. Read `meta/conventions/thread-pattern.md` section 7.2 for the full table. The one rule to remember: **the armed flag is the thread's switch.** A Campaign sets it; the thread's first Wants and events test it. No armed flag, no thread.
 
 ## 1.4 The loop
 
@@ -174,7 +174,7 @@ Do this before you write a block. A thread that cannot be drawn in a table canno
 Answer these in order. Each answer becomes a block.
 
 1. **Premise, in one sentence, and what happens if nobody intervenes** (the *idle outcome*).
-2. **Class:** Resolvable, Managed or Ratchet (`docs/thread-pattern.md` section 6). The class decides the shape of your graph.
+2. **Class:** Resolvable, Managed or Ratchet (`meta/conventions/thread-pattern.md` section 6). The class decides the shape of your graph.
 3. **Actors, and who replaces each if the player removes them** (the *successors*).
 4. **The state graph:** each state, what enters it, what changes, and its exits.
 5. **Timers:** how many days between states, if left alone (these become Want deadlines).
@@ -219,7 +219,7 @@ Answer these in order. Each answer becomes a block.
 | **Successor** | the player will kill the person the thread depends on | an event on `not npc_alive` brings the next, or sets every open intent at once |
 | **Inference** | the player will do things no Quest covers | an event turns state (a location, a death) into the thread's flags and edges |
 
-For Managed threads you also need **unrolled cycles** (an event fires once, so a repeating beat is written as numbered copies with a floor), and for Ratchets a **LOCKED** floor. See section 8.2 and `docs/thread-pattern.md` section 7.3.
+For Managed threads you also need **unrolled cycles** (an event fires once, so a repeating beat is written as numbered copies with a floor), and for Ratchets a **LOCKED** floor. See section 8.2 and `meta/conventions/thread-pattern.md` section 7.3.
 
 ---
 
@@ -337,7 +337,7 @@ authority: GUIDED
 ```yaml
 kind: FACT
 id: fact_ferry_creditors_sell_debtors
-text: "The creditors do not wait for debts to be paid. They sell defaulters' contracts to the Quiet Trade."
+text: "The creditors do not wait for debts to be paid. They sell defaulters' contracts on to the buyers at the pans."
 truth: TRUE
 _known_by_groups:
   - { group: faction_ferry_creditors, tier: inner }
@@ -356,7 +356,7 @@ authority: LOCKED
 | `subjects` | ids the Fact is about |
 | `authority` | `LOCKED`, `GUIDED` (the default) or `OPEN`: how freely the LLM may handle the Fact's wording. See below |
 
-**Authority.** Every authored Want, World Event, Fact, Encounter and text block carries an `authority` field (Design 23 §6). It says **who has the last word**: the engine and your text, or the LLM. The engine always validates every state change; authority governs the *text and the outcome*, never the rules.
+**Authority.** Every authored Want, World Event, Fact, Encounter and text block carries an `authority` field. It says **who has the last word**: the engine and your text, or the LLM. The engine always validates every state change; authority governs the *text and the outcome*, never the rules.
 
 | Value | Meaning | Use for a Fact |
 |---|---|---|
@@ -365,8 +365,8 @@ authority: LOCKED
 | `OPEN` | The LLM may invent freely within the NPC's persona and the Want's `forbidden` list. | Loose colour and local knowledge you are happy for the narrator to extend. Use sparingly: the narrator may add detail you did not write |
 
 Two notes:
-- Design 23 §6 defines authority generally. How it applies to a Fact in particular (verbatim versus adapted wording) is **my reading of that definition**: the spec's own Fact example just writes `authority: GUIDED`.
-- `LOCKED` carries an extra rule on a **Want** or **World Event**: it needs a deterministic fallback. A Fact has no outcome to enforce, so it needs none. Where each level is used in the plot web: `docs/thread-pattern.md` section 8.4.
+- The engine defines authority generally. How it applies to a Fact in particular (verbatim versus adapted wording) is **my reading of that definition**: the engine's own Fact example just writes `authority: GUIDED`.
+- `LOCKED` carries an extra rule on a **Want** or **World Event**: it needs a deterministic fallback. A Fact has no outcome to enforce, so it needs none. Where each level is used in the plot web: `meta/conventions/thread-pattern.md` section 8.4.
 
 **Group knowledge.** Write who knows a Fact **by group and tier**, and let the transformer resolve it to NPC ids:
 
@@ -379,7 +379,7 @@ Tiers nest: `common` is known by all named members, `select` by select and `inne
 
 **Rules.** The player learns a Fact only through a `reveal_fact` Effect. Every Fact nobody knows needs one (the example reveals both in the buy-back Quest).
 
-**An NPC telling the player is not recorded yet.** How a Fact told *in conversation* becomes a disclosure is an open platform item (Design 23 §14 items 10 and 11; PR-16). Until it lands, give every Fact the play depends on a **deterministic reveal path** (an event, a check or a Quest's `on_complete`), and do not make a `DIALOGUE` milestone's `when: fact_revealed` depend on an NPC speaking. Where the world's lore beyond Facts reaches NPCs and the narrator is a related open item (PR-14, PR-15).
+**An NPC telling the player is not recorded yet.** How a Fact told *in conversation* becomes a disclosure is an open platform item (PR-16). Until it lands, give every Fact the play depends on a **deterministic reveal path** (an event, a check or a Quest's `on_complete`), and do not make a `DIALOGUE` milestone's `when: fact_revealed` depend on an NPC speaking. Where the world's lore beyond Facts reaches NPCs and the narrator is a related open item (PR-14, PR-15).
 
 ## 4.6 Want
 
@@ -653,7 +653,7 @@ The thread card is the **document that explains the graph**; the blocks are the 
 
 ```yaml
 thread: ferry
-interface: { class: resolvable, arms: [ferry_armed], reads: [], sets: [ferry_sold_on, ferry_debt_paid, ferry_fled], terminals: [evt_ferry_settled, evt_ferry_gone, evt_ferry_sold_on], inputs_from: [], outputs_to: [thread_quiet_trade_in_motion] }
+interface: { class: resolvable, arms: [ferry_armed], reads: [], sets: [ferry_sold_on, ferry_debt_paid, ferry_fled], terminals: [evt_ferry_settled, evt_ferry_gone, evt_ferry_sold_on], inputs_from: [], outputs_to: [] }
 ```
 
 - `thread` labels every block in the note (and, through `_thread: ferry`, the blocks that live in other notes: Wants, Quests, a genesis event). The label is not sent to the engine yet (PF-6).
@@ -699,7 +699,7 @@ unlocks:
 
 ## 5.2 The overlay
 
-**Where:** `overlay-<slug>.md`, `kind: OVERLAY` in frontmatter, id `overlay_...`, block `CAMPAIGN_OVERLAY`. It holds `adds`, `overrides` and `suppresses`, and must hold at least one. See `docs/thread-pattern.md` section 2.1 for why it is separate.
+**Where:** `overlay-<slug>.md`, `kind: OVERLAY` in frontmatter, id `overlay_...`, block `CAMPAIGN_OVERLAY`. It holds `adds`, `overrides` and `suppresses`, and must hold at least one. See `meta/conventions/thread-pattern.md` section 2.1 for why it is separate.
 
 ```yaml
 kind: CAMPAIGN_OVERLAY
@@ -733,7 +733,7 @@ suppresses: [npc_idra_vance]
 ```
 
 - **Authority.** To make a key beat unavoidable in one Campaign, override its `authority` to `LOCKED`. Keep that for the Campaign's own endgame, not for thread internals.
-- **Hydrated entities are frozen.** Once a Sandbox has met an entity, a later Campaign version cannot silently change it (Design 23.4). Do not rely on an override changing a Sandbox mid-play; use Effects.
+- **Hydrated entities are frozen.** Once a Sandbox has met an entity, a later Campaign version cannot silently change it. Do not rely on an override changing a Sandbox mid-play; use Effects.
 
 ## 5.3 The Module
 
@@ -1014,7 +1014,7 @@ To try the Ferryman's Debt without touching the vault: `tools/verify-example.sh`
 
 ## 6.3 Write scenarios
 
-A scenario is a YAML file **you write by hand** — the script you would play if you were the player, plus the assertions you want to hold. Nothing generates it: `campaigns/dustport-pilot/scenarios/` and the example's `scenarios/` are all hand-written, and the generator scripts that wrote the pilot's *notes* never wrote a scenario. The simulator replays it — scripting the player and other threads, running the world day by day — and checks what you expect.
+A scenario is a YAML file **you write by hand** — the script you would play if you were the player, plus the assertions you want to hold. Nothing generates it: the example's `scenarios/` are hand-written, and no generator wrote one. The simulator replays it — scripting the player and other threads, running the world day by day — and checks what you expect.
 
 A scenario tests the **Conditions and Effects web**, not the game. It is a *model of the world layer, not the engine*: whether events fire on the days you designed, whether Want deadlines expire, whether flags and edges land where you meant, whether every terminal is reachable, and whether a thread closes cleanly when it ends. It does **not** cover rooms, encounters, combat, items or narration, and it skips the Conditions it cannot model — `has_item`, `disposition_*`, `faction_rep_gte`, `season_is`, `player_level_gte` and `milestone_complete` (Appendix B) — so a Quest is run whole rather than milestone by milestone. Where the specs are silent it follows a named assumption rather than the engine (A-1…A-6, pilot-thread-findings); a passing scenario therefore proves the design is coherent *before any engine exists*, not that the engine will behave the same.
 
@@ -1056,7 +1056,7 @@ quest_ferry_pay_the_debt:
     - { not: { flag_set: { flag: ferry_debt_paid } } }
 ```
 
-The simulator refuses a Quest whose gate is false — and likewise one whose Module is locked or that is already complete — and records it in `rejected`, which your `expect` block asserts. Omit `quest_gates_file` and it falls back to `campaigns/dustport-pilot/scenarios/pilot-quest-gates.yaml`. The gate file is a sidecar, not a scenario, so the runner skips it.
+The simulator refuses a Quest whose gate is false — and likewise one whose Module is locked or that is already complete — and records it in `rejected`, which your `expect` block asserts. Omit `quest_gates_file` and it falls back to the demo's `campaigns/ferryman-demo/scenarios/quest-gates.yaml`. The gate file is a sidecar, not a scenario, so the runner skips it.
 
 A scenario may also start with `start: { fast_forward: <stage flag> }`.
 
@@ -1137,51 +1137,53 @@ Two quick checks that the safety nets work:
 ## 8.1 Writing the 18 threads
 
 1. Take a thread from the plot web (the Plot Web) and do the one-page design (3.1).
-2. Decide its **class**, and borrow the shape from the matching example: `the-ferrymans-debt.md` (Resolvable), the-lineage-and-the-gate-born (Managed, with a Resolvable terminal and a Ratchet floor). A Ratchet is a long forward-only ladder; write the stage events with long Want timers and a `LOCKED` last stage.
+2. Decide its **class**, and borrow the shape from the nearest example: `the-ferrymans-debt.md` is Resolvable. A Managed thread has no demo example, so section 8.2 sketches one with placeholder ids; a Ratchet is a long forward-only ladder, written as stage events with long Want timers and a `LOCKED` last stage.
 3. Convert the thread's existing Wants: `urgent_when` becomes the armed flag plus an own-stage guard; each fallback flag becomes an intent flag read by exactly one event.
 4. Write the thread card, the blocks, the scenarios.
 5. List the thread's `interface`. The interaction grid between threads is **generated** from the interfaces: where one thread's `sets` meets another's `reads`.
 
 ## 8.2 Bounded cycles (Managed threads)
 
-An event fires once, so a repeatable beat ("the hunt closes in; the player moves the boy") is written as numbered cycles with a floor. In the Lineage thread, cycle 1 and its reprieve are:
+An event fires once, so a repeatable beat ("the hunt closes in; the player moves the target") is
+written as numbered cycles with a floor. The two cycles below use placeholder ids, because no demo
+thread is Managed: cycle 1, and its reprieve.
 
 ```yaml
 kind: WORLD_EVENT
-id: evt_lin_hunt_closes_1
+id: evt_example_hunt_closes_1
 scope: REGIONAL
 origin: loc_dustport
 when:
   all:
-    - { flag_set: { flag: lin_armed } }
-    - { flag_set: { flag: lin_hunt_due_1 } }
-    - { not: { flag_set: { flag: lin_hunt_closes_1 } } }
-    - { not: { flag_set: { flag: lin_reprieve_1 } } }
-    - { edge_exists: { from: npc_dagna_rusk, kind: GUARDS, to: npc_ennis_pell } }
-    - { not: { flag_set: { flag: lin_ennis_convenor } } }
+    - { flag_set: { flag: example_armed } }
+    - { flag_set: { flag: example_hunt_due_1 } }
+    - { not: { flag_set: { flag: example_hunt_closes_1 } } }
+    - { not: { flag_set: { flag: example_reprieve_1 } } }
+    - { edge_exists: { from: npc_example_guard, kind: GUARDS, to: npc_example_target } }
+    - { not: { flag_set: { flag: example_target_moved } } }
 then:
-  - { set_flag: { flag: lin_hunt_closes_1 } }
-truth: "The retriever finds the first hiding place's trail."
-known_by: [npc_halvard_sorn]
+  - { set_flag: { flag: example_hunt_closes_1 } }
+truth: "The hunter finds the first hiding place's trail."
+known_by: [npc_example_witness]
 ```
 
 ```yaml
 kind: WORLD_EVENT
-id: evt_lin_reprieve_1
+id: evt_example_reprieve_1
 scope: REGIONAL
 origin: loc_dustport
 when:
   all:
-    - { flag_set: { flag: lin_armed } }
-    - { flag_set: { flag: lin_hunt_due_1 } }
-    - { flag_set: { flag: lin_reprieve_1 } }
-    - { not: { flag_set: { flag: lin_s3_hunted_2 } } }
-    - { edge_exists: { from: npc_dagna_rusk, kind: GUARDS, to: npc_ennis_pell } }
-    - { not: { flag_set: { flag: lin_ennis_convenor } } }
+    - { flag_set: { flag: example_armed } }
+    - { flag_set: { flag: example_hunt_due_1 } }
+    - { flag_set: { flag: example_reprieve_1 } }
+    - { not: { flag_set: { flag: example_stage_2 } } }
+    - { edge_exists: { from: npc_example_guard, kind: GUARDS, to: npc_example_target } }
+    - { not: { flag_set: { flag: example_target_moved } } }
 then:
-  - { set_flag: { flag: lin_s3_hunted_2 } }
-truth: "Ennis was moved in time. The retriever starts again from nothing."
-known_by: [npc_halvard_sorn]
+  - { set_flag: { flag: example_stage_2 } }
+truth: "The target was moved in time. The hunter starts again from nothing."
+known_by: [npc_example_witness]
 ```
 
 The first fires if the player has **not** bought a reprieve; the second fires if they have, and starts cycle 2. After the second reprieve the hunt is exhausted and the pressure resumes unconditionally. A third reprieve is not authored.
@@ -1283,4 +1285,4 @@ An Effect list holds at most 64 Effects. A Condition nests at most 16 deep and h
 | `_known_by_groups` on a Fact | resolved to `known_by` NPC ids |
 
 ## Links
-`docs/thread-pattern.md`, `the-ferrymans-debt.md`, the-lineage-and-the-gate-born, the engine-capability register, the kit's conventions, the world's flag register, the-quay-boy
+`meta/conventions/thread-pattern.md`, the demo's `the-ferrymans-debt.md`, the engine-capability register, the kit's conventions, the world's flag register

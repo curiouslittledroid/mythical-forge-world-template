@@ -1,8 +1,4 @@
 ---
-// The landing page. THIS FILE IS THE WORLD'S OWN — the tooling sync never overwrites it, and
-// neither does the worldkit: this is the one page that is pure prose, and prose is not chrome.
-// Replace the REPLACE_ME copy with the world's own. The structure, the tokens and the components
-// are the theme's; keep them or change them, it is a world's file.
 import { existsSync } from 'node:fs';
 import { join } from 'node:path';
 import { getCollection } from 'astro:content';
@@ -20,17 +16,90 @@ import {
 
 const pages = await getCollection('pages');
 const sectionCounts = new Map(sections.map((s) => [s.slug, s.count]));
+// The first section a world actually published, so this page links somewhere that exists.
+// A hard-coded `/history/` was a dead link in every fork that has no History section (most).
+const firstSection = sections[0];
 
-// Hero art: drop a file into site/public/img/ named after `site.hero_file` in world.config.yaml and
-// it is used. Until then the hero is just its own background — no invented artwork. The art brief
-// is site/image-prompts/.
+// Hero art: drop one of these into site/public/img/ and it is used; without it, the SVG scene
+// below is drawn instead. The basename is the world's (`site.hero_file` in world.config.yaml), and
+// the prompt that produces it is the world's own note in site/image-prompts/.
 const HERO_FILES = ['avif', 'webp', 'jpg', 'png', 'svg'].map((ext) => `${SITE.heroFile}.${ext}`);
 const heroImage = HERO_FILES.find((f) => existsSync(join(process.cwd(), 'public', 'img', f)));
 ---
 
 <BaseLayout>
-  <!-- The hero. One image lands later; until then the section is honest about being a placeholder. -->
+  <!-- The hero. One image lands later (the hero prompt in site/image-prompts/); until then,
+       the scene is drawn in CSS so the page is honest about what it is. -->
   <section class="hero flex min-h-[70vh] max-h-[680px] items-end md:max-h-none">
+    <!-- Until the hero art lands (the hero prompt in site/image-prompts/), the scene is drawn
+         here: a closed gate seen across a salt flat, at dusk. -->
+    {!heroImage && (
+    <svg
+      class="hero-scene"
+      viewBox="0 0 1600 420"
+      preserveAspectRatio="xMidYMax meet"
+      aria-hidden="true"
+      focusable="false"
+    >
+      <defs>
+        <linearGradient id="gate-glow" x1="0" y1="1" x2="0" y2="0">
+          <stop offset="0%" stop-color="#c2502a" stop-opacity="0.95" />
+          <stop offset="55%" stop-color="#a8411f" stop-opacity="0.45" />
+          <stop offset="100%" stop-color="#6b2a12" stop-opacity="0" />
+        </linearGradient>
+        <radialGradient id="spill" cx="50%" cy="100%" r="70%">
+          <stop offset="0%" stop-color="#c2502a" stop-opacity="0.4" />
+          <stop offset="100%" stop-color="#c2502a" stop-opacity="0" />
+        </radialGradient>
+      </defs>
+
+      <!-- light spilling from the gate onto the flat -->
+      <ellipse cx="1150" cy="338" rx="260" ry="52" fill="url(#spill)" />
+
+      <!-- the low ruin field, left of the road -->
+      <g fill="#0b0a09" opacity="0.9">
+        <rect x="470" y="316" width="52" height="24" />
+        <rect x="528" y="306" width="28" height="34" />
+        <rect x="562" y="322" width="66" height="18" />
+        <rect x="636" y="310" width="22" height="30" />
+        <rect x="664" y="326" width="84" height="14" />
+        <rect x="756" y="318" width="34" height="22" />
+        <rect x="800" y="328" width="42" height="12" />
+      </g>
+
+      <!-- the walled city, right of centre -->
+      <g fill="#0b0a09">
+        <rect x="900" y="246" width="42" height="94" />
+        <rect x="896" y="236" width="50" height="12" />
+        <rect x="942" y="262" width="376" height="78" />
+        <rect x="1276" y="224" width="44" height="116" />
+        <rect x="1272" y="214" width="52" height="12" />
+        <rect x="960" y="252" width="14" height="11" />
+        <rect x="1002" y="252" width="14" height="11" />
+        <rect x="1044" y="252" width="14" height="11" />
+        <rect x="1188" y="252" width="14" height="11" />
+        <rect x="1230" y="252" width="14" height="11" />
+      </g>
+
+      <!-- the gate arch, lit -->
+      <path d="M1096 340 V282 a30 30 0 0 1 60 0 v58 Z" fill="url(#gate-glow)" />
+      <path
+        d="M1096 340 V282 a30 30 0 0 1 60 0 v58"
+        fill="none"
+        stroke="#0b0a09"
+        stroke-width="6"
+      />
+
+      <!-- horizon, road, and one figure on it -->
+      <rect x="0" y="339" width="1600" height="1.4" fill="#f7f2e6" opacity="0.15" />
+      <rect x="1125" y="340" width="4" height="80" fill="#f7f2e6" opacity="0.05" />
+      <g fill="#0b0a09">
+        <rect x="1004" y="328" width="2.2" height="10" />
+        <rect x="1003.4" y="324" width="3.2" height="4" />
+      </g>
+    </svg>
+    )}
+
     {
       heroImage && (
         <>
@@ -62,7 +131,6 @@ const heroImage = HERO_FILES.find((f) => existsSync(join(process.cwd(), 'public'
         >
           Enter the codex
         </a>
-
         <a href="#the-world" class="scroll-cue text-sand/80 no-underline hover:text-bone"
           >Read the world ↓</a
         >
@@ -70,41 +138,43 @@ const heroImage = HERO_FILES.find((f) => existsSync(join(process.cwd(), 'public'
     </div>
   </section>
 
-  <!-- 1. The world, in three paragraphs. THE WORLD'S OWN COPY: replace all of it. -->
+  <!-- 1. The world that broke -->
   <section id="the-world" class="mx-auto max-w-6xl px-5 py-20 sm:px-8 sm:py-28">
     <div class="grid gap-x-14 gap-y-8 md:grid-cols-[minmax(0,42rem)_13rem]">
       <div>
         <p class="eyebrow">The world</p>
-        <h2 class="mt-3 text-[clamp(1.9rem,4vw,2.6rem)]">REPLACE_ME — a heading in the world's voice</h2>
+        <h2 class="mt-3 text-[clamp(1.9rem,4vw,2.6rem)]">The world that broke</h2>
         <div class="prose-hollow mt-6 max-w-[62ch] text-[1.1rem]">
           <p>
-            REPLACE_ME — the premise, in two or three sentences a stranger can follow. What the world
-            is, what went wrong, and what that means for the people in it now.
+            {SITE.description}
           </p>
           <p>
-            REPLACE_ME — what is scarce, and what that does to ordinary life. This is the paragraph
-            that tells a reader what a game here is *about*.
+            A world bible is neither a novel nor a campaign: it is the setting several campaigns
+            will share, written so that its politics, its magic and its monsters all trace back to
+            the same history.
           </p>
           <p>
-            REPLACE_ME — what is permanently broken, and what a party can still change. No clean
-            fixes; but not nothing.
+            Replace this, and the three paragraphs above, with the world itself — what broke it,
+            what it costs to live in, and what a reader should feel on arriving. The rest of this
+            page is drawn from `world.config.yaml`.
           </p>
         </div>
       </div>
       <aside class="marginalia border-l border-[var(--rule)] pl-5 md:border-l-0 md:border-t md:pl-0 md:pt-5">
         <p>
-          REPLACE_ME — one line of the world's own voice, a saying or a warning a resident would
-          repeat.
+          Every feature of the world traces back to something that happened first — which is what
+          makes a setting feel like a place rather than a list.
         </p>
-        <p class="mt-4">
-          <!-- Link into a section the world actually publishes, e.g. /history/<slug>/ -->
-          <a href="/codex/" class="no-underline">Start with the history →</a>
-        </p>
+        {firstSection && (
+          <p class="mt-4">
+            <a href={`/${firstSection.slug}/`} class="no-underline">{firstSection.label} →</a>
+          </p>
+        )}
       </aside>
     </div>
   </section>
 
-  <!-- 2. What this is. Mostly generic: it describes a codex site, not the world. -->
+  <!-- 2. What this is -->
   <section class="border-y border-[var(--rule)] bg-parchment/45">
     <div class="mx-auto max-w-6xl px-5 py-16 sm:px-8">
       <div class="grid gap-10 md:grid-cols-[1fr_1fr] md:gap-16">
@@ -112,8 +182,9 @@ const heroImage = HERO_FILES.find((f) => existsSync(join(process.cwd(), 'public'
           <p class="eyebrow">What this is</p>
           <h2 class="mt-3 text-[clamp(1.7rem,3.4vw,2.2rem)]">A world bible, written in the open</h2>
           <p class="mt-5 max-w-[46ch] text-[1.05rem] text-ash">
-            {SITE.name} is a world being built for tabletop campaigns. This site is its player-facing
-            codex: the history, the powers, the places and the things that are wrong with all of them.
+            {SITE.name} is a world being built for tabletop campaigns. This site is its
+            player-facing codex: its history, its powers, its places, its magic, and the things that
+            are wrong with all of them.
           </p>
           <p class="mt-4 max-w-[46ch] text-[1.05rem] text-ash">
             It is a living draft. Entries change as the world is worked out, and each revision is
@@ -142,9 +213,9 @@ const heroImage = HERO_FILES.find((f) => existsSync(join(process.cwd(), 'public'
     </div>
   </section>
 
-  <!-- 3. Doorways. Config-driven: the entries come from `site.doorways` in world.config.yaml. -->
+  <!-- 3. Doorways -->
   <section class="mx-auto max-w-6xl px-5 py-20 sm:px-8 sm:py-24" aria-labelledby="doorways">
-    <h2 id="doorways" class="text-[clamp(1.7rem,3.4vw,2.2rem)]">Ways in</h2>
+    <h2 id="doorways" class="text-[clamp(1.7rem,3.4vw,2.2rem)]">Four ways in</h2>
     <ul class="mt-8 grid gap-4 sm:grid-cols-2">
       {
         doorways.map((d) => (
@@ -159,7 +230,7 @@ const heroImage = HERO_FILES.find((f) => existsSync(join(process.cwd(), 'public'
     </ul>
   </section>
 
-  <!-- 4. What to expect. Config-driven: `principles/what-to-expect.md` supplies the lines. -->
+  <!-- 4. What to expect -->
   <section class="border-y border-[var(--rule)] bg-parchment/45" aria-labelledby="expect">
     <div class="mx-auto max-w-6xl px-5 py-16 sm:px-8 sm:py-20">
       <p class="eyebrow">At the table</p>
@@ -181,7 +252,7 @@ const heroImage = HERO_FILES.find((f) => existsSync(join(process.cwd(), 'public'
     </div>
   </section>
 
-  <!-- 5. The spoilers promise. Generic, and worth keeping: it is what makes the site safe to read. -->
+  <!-- 5. The spoilers promise -->
   <section class="mx-auto max-w-6xl px-5 py-20 sm:px-8" aria-labelledby="spoilers">
     <div class="grid gap-10 md:grid-cols-[1fr_1fr] md:gap-16">
       <div>
@@ -191,8 +262,8 @@ const heroImage = HERO_FILES.find((f) => existsSync(join(process.cwd(), 'public'
         </h2>
         <p class="mt-5 max-w-[46ch] text-[1.05rem] text-ash">
           Everything here is drawn from the parts of the codex that ordinary people in {SITE.name}
-          could know, believe or repeat. The secrets — and if this world is built the way it should
-          be, there are layered ones — are not on this site.
+          could know, believe or repeat. The secrets — and there are secrets, layered ones, the kind
+          a campaign is built to find — are not on this site.
         </p>
         <p class="mt-4 max-w-[46ch] text-[1.05rem] text-ash">
           Where the world disagrees with itself, you will see the disagreement: the official line,
@@ -201,19 +272,20 @@ const heroImage = HERO_FILES.find((f) => existsSync(join(process.cwd(), 'public'
       </div>
       <div class="no-spoilers self-start">
         <p class="font-display text-[1.25rem] leading-snug">
-          “REPLACE_ME — a line a resident would say, in quotation marks.”
+          “Ask three people who was right, and you will get four answers.”
         </p>
         <p class="mt-3 text-[0.95rem]">
-          REPLACE_ME — where it comes from, in one sentence, using only what a resident could know.
+          Replace this with a line from the world — a proverb, a boast, something people say — and
+          link it to the entry it comes from. The panel is the theme's; the words are the world's.
         </p>
         <p class="mt-3 text-[0.95rem]">
-          <a href="/codex/" class="no-underline">REPLACE_ME — a link into the codex →</a>
+          <a href="/codex/" class="no-underline">Enter the codex →</a>
         </p>
       </div>
     </div>
   </section>
 
-  <!-- 6. Follow along. Generic. -->
+  <!-- 6. Follow along -->
   <section class="border-t border-[var(--rule)]" aria-labelledby="follow">
     <div class="mx-auto max-w-6xl px-5 py-16 sm:px-8 sm:py-20">
       <div class="grid gap-10 md:grid-cols-[1fr_1fr] md:gap-16">
