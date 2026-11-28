@@ -1,20 +1,20 @@
 # Vault Conventions (v2.0)
 
 **Status:** the rules every world codex follows. World-specific choices are **not** here: they live in
-that world's own `meta/conventions.md`, in `world.config.yaml`, and in its fenced vault blocks.
+that world's own `meta/world-conventions.md`, in `world.config.yaml`, and in its fenced vault blocks.
 **Authority:** where this file lists an engine vocabulary, the platform package
-(`@curiouslittledroid/authored-content`, or a checkout named by `MYTHICAL_FORGE_ROOT`) is the authority, not this file.
+`@curiouslittledroid/authored-content` is the authority, not this file.
 
 ## 1. Purpose
 
 A **world codex** is a human-readable, Obsidian-style lore vault. It is the upstream source for the
-game engine's generated **Game Ready Repository** — a separate Git repository of typed YAML entities
-(Design 23 §4.1). A **deterministic transformer** extracts those entities from the codex.
+game engine's generated **Game Ready Repository** — a separate Git repository of typed YAML entities.
+A **deterministic transformer** extracts those entities from the codex.
 
 - **Codex:** lore, rationale, secrets, history, design notes. Prose-first.
 - **Game Ready Repository (separate, generated):** closed-vocabulary YAML the engine consumes.
   **Never hand-edited.** Fix the note and re-run the transformer.
-- **Terminology:** the platform glossary and Design 23 §4 call *any* author's generated repository a
+- **Terminology:** the platform's glossary calls *any* author's generated repository a
   **World Repository**. In the codex that term is retired; each world names its own repository.
 
 ## 2. Decisions the kit implements
@@ -78,7 +78,7 @@ The **top-level contracts** are fixed, because the tooling depends on them:
 ## 5. Ids and filenames
 
 - **Ids** use the engine grammar: lowercase ASCII tokens joined by single underscores, starting with a
-  letter, at least two tokens, max 100 characters (e.g. `npc_harbourmaster`). **Ids never change once
+  letter, at least two tokens, max 100 characters (e.g. `npc_tomas_reed`). **Ids never change once
   published.**
 - **Filenames are the kebab-case slug of the title** (a note titled *The Long Eclipse* is
   `the-long-eclipse.md`). The id lives in
@@ -91,15 +91,15 @@ The **top-level contracts** are fixed, because the tooling depends on them:
 
 | Kind | Prefix | Example |
 |---|---|---|
-| NPC | `npc_` | `npc_harbourmaster` |
-| WANT | `want_` | `want_harbourmaster_gate` |
-| FACT | `fact_` | `fact_waygates_are_choir_tech` |
-| RELATIONSHIP | `rel_` (optional id) | `rel_consortium_controls_highwell` |
-| WORLD_EVENT | `evt_` | `evt_well_fails` |
+| NPC | `npc_` | `npc_tomas_reed` |
+| WANT | `want_` | `want_reed_clear_his_debt` |
+| FACT | `fact_` | `fact_ferry_debt_was_padded` |
+| RELATIONSHIP | `rel_` (optional id) | `rel_<faction>_controls_<target>` |
+| WORLD_EVENT | `evt_` | `evt_ferry_seized` |
 | QUEST | `quest_` | |
 | ROOM | `room_` | |
 | ENCOUNTER | `enc_` | |
-| FACTION | `faction_` | `faction_wardens_of_the_stone` |
+| FACTION | `faction_` | `faction_ferry_creditors` |
 | ITEM | `item_` | |
 | MONSTER | `mon_` | |
 | MODULE | `mod_` | |
@@ -138,7 +138,7 @@ A **zone** is the engine's lazy-hydration unit (Design 04.1 §3) and an authored
 Rules:
 
 - **The region notes define the zones.** The atlas draws them; nothing else invents one.
-  `python3 tools/atlas_yaml.py maps/atlas-features.yaml` plus the atlas check (`docs/atlas.md`)
+  `python3 tools/atlas_yaml.py maps/atlas-features.yaml` plus the atlas check (`meta/conventions/atlas.md`)
   keeps the two homes in step.
 - **Two scales, and a zone is never a site.** A continent is a zone, and each of its regions is too.
   A settlement, site or other place **is not a zone**: it carries `zone:` and its own `loc_` id. An
@@ -297,7 +297,7 @@ prose that NPC agents and the narrator read. `tools/lore_export.py` implements t
 
 | Section | Audience |
 |---|---|
-| an explicit `**Known by:** faction_x@inner, race_elf` line under the heading | that |
+| an explicit `**Known by:** faction_x@inner, race_human` line under the heading | that |
 | an NPC's `**Want:**` line, or its `## Secrets` / `## Keystone secrets` | **itself only** |
 | `open` | everyone (`scope: world`) |
 | a FACTION note's `earned` / `sealed` section | that faction, `select` / `inner` |
@@ -365,8 +365,8 @@ authority: LOCKED
 
 Rules:
 - Field names and enums come from the engine schemas. Do not invent fields.
-- Free text in a block is **untrusted prompt input** and **token-capped** (Design 23 §8.2, §11). Keep
-  it short. The prose carries the long version.
+- Free text in a block is **untrusted prompt input** and **token-capped**. Keep it short. The prose
+  carries the long version.
 - Every referenced id must exist in the codex.
 - `authority` defaults to `GUIDED`. Use `LOCKED` for permanence-rule outcomes and hard truths.
 - **Placeholders** are written `REPLACE`. A committed note with `REPLACE` in an `engine` block, or in
@@ -457,14 +457,15 @@ Rules:
 
 ### 9.7 Stand-in patterns (where the vocabulary is missing)
 
-Some world properties have no engine field. **Do not invent one.** The patterns in force are recorded
-in the **engine-capability register**, which classifies each one and says why (`CP-` patterns in force,
-`BD-` items closed by design, `DT-` deferred with a named trigger). A world's register lists only the
-gaps *it* hits; the mechanism belongs to the kit.
+Some world properties have no engine field. **Do not invent one.** §9.6 covers a value the engine
+will have later, and `thread-pattern.md` carries the structural patterns already in force as `CP-`
+cards. Classify the rest in your own `meta/mechanics-gap-register.md`, which is where a world records
+the gaps *it* hits and the workaround in force. What the engine does about them is the kit owner's
+call, not a world's.
 
 ### 9.8 Threads, flags, Campaigns and Modules
 
-The full pattern is in `docs/thread-pattern.md`. The rules the linter and tools enforce:
+The full pattern is in `meta/conventions/thread-pattern.md`. The rules the linter and tools enforce:
 
 - **A thread is a state graph.** Its note is a *thread card* (template `thread`): premise, actors and
   successors, the state graph, an **interface**, quest contracts, the idle run. The thread note's
@@ -491,7 +492,7 @@ The full pattern is in `docs/thread-pattern.md`. The rules the linter and tools 
 - **A Campaign** arms threads with a genesis World Event in its overlay (`day_reached: 0`, guarded by
   `not <thread>_armed`). It never edits a thread's events.
 - The step-by-step tutorial for writing a thread, Campaign, Modules and Quests, and every block, is
-  `docs/campaign-authoring-guide.md`.
+  `meta/conventions/campaign-authoring-guide.md`.
 
 ## 10. Note body
 
@@ -565,6 +566,27 @@ conventions note. Rooms, encounters and quests get templates with the campaign p
 
 ## 13. Engine vocabularies (reference; the package is the authority)
 
+Every list below is closed, and none of them is authoritative: the **schema package can be asked**,
+and its answer is what `transform` and `validate` enforce. Once it is installed
+(`meta/conventions/tooling.md` has the two lines), this prints the live lists at the version this
+world pins:
+
+```bash
+node -e "const a = require('@curiouslittledroid/authored-content');
+for (const k of ['ENTITY_KINDS', 'RELATIONSHIP_KINDS', 'AUTHORITY_LEVELS', 'WANT_METHODS',
+                 'ENCOUNTER_TACTICS', 'CONTENT_DESCRIPTORS', 'JUDGEMENT_TAGS', 'MILESTONE_TYPES',
+                 'NODE_TYPES', 'TERRAIN', 'SIMULATION_TIERS', 'EFFECT_NAMES', 'PREDICATE_NAMES',
+                 'COMBINATOR_NAMES'])
+  console.log(k.padEnd(20), (a[k] ?? []).join(', '))"
+```
+
+That is the answer to *"can the engine do this?"* — cheaper and truer than any list, including this
+one, which is here so you can read rather than run.
+
+- **Entity kinds:** `NPC`, `WANT`, `FACT`, `RELATIONSHIP`, `WORLD_EVENT`, `QUEST`, `ROOM`, `SITE`,
+  `ENCOUNTER`, `FACTION`, `ITEM`, `MONSTER`, `MODULE`, `CAMPAIGN`, `CAMPAIGN_OVERLAY`, `MIGRATION`,
+  `OVERLAND_GRAPH`, `ZONE`. The note type each corresponds to, and its id prefix, are in
+  `conventions.md` §5.1.
 - **Relationship kinds:** `KIN_OF`, `ALLY_OF`, `RIVAL_OF`, `ENEMY_OF`, `LOVES`, `FEARS`, `DISTRUSTS`,
   `OWES`, `MEMBER_OF`, `LEADS`, `SERVES`, `SECRETLY_SERVES`, `EMPLOYS`, `RESIDES_AT`, `GUARDS`,
   `CONTROLS`, `OWNS`, `SEEKS`, `KNOWS_SECRET_OF`, `BELIEVES`.
@@ -576,12 +598,19 @@ conventions note. Rooms, encounters and quests get templates with the campaign p
 - **Overland node types:** `SETTLEMENT`, `SITE_ENTRANCE`, `POINT_OF_INTEREST`, `WILDERNESS`.
   **Terrain:** `STANDARD`, `DIFFICULT`, `TRACKLESS`.
 - **Simulation tiers:** `MAJOR`, `MINOR`. **World Event scope:** `LOCAL`, `REGIONAL`, `MACRO`.
-- **Effects and conditions:** the platform package's `effect.ts` and `condition.ts`.
+- **Milestone types:** `DIALOGUE`, `FETCH`, `DELIVER`.
+- **Effects and conditions:** `EFFECT_NAMES`, `PREDICATE_NAMES` and `COMBINATOR_NAMES` are the live
+  lists, so they are not transcribed here. The block's shape, and how sources, conditions and effects
+  combine into a state graph, is `campaign-authoring-guide.md` and `thread-pattern.md`.
 
-**Vocabulary gaps are the register's business, not this file's.** Each world logs the mechanics it
-needs that the engine cannot express in its own `meta/mechanics-gap-register.md`, and the live
-catalogue of platform requests lives in `docs/engine-capability-register.md`. The kit never assumes a
-gap is universal: a mechanic one world needs may be irrelevant to another.
+**When a value is not there, the engine does not have it — and that is not yours to decide.** The
+closed vocabularies stay closed (`conventions.md` §2, item 5): a note that needs a mechanic the engine
+lacks uses the vocabulary that does exist, writes the value it needs in the **standard body line** if
+the field is coming (§9.6), uses the stand-in pattern in force if one exists (§9.7), and **logs it in
+`meta/mechanics-gap-register.md`** with the workaround. That log is a **request**, not a decision: a
+world cannot extend a closed vocabulary by naming what it is missing, and the catalogue of what the
+platform has been asked for is the kit owner's, kept with the platform rather than in the vault. The
+kit never assumes a gap is universal — a mechanic one world needs may be irrelevant to another.
 
 ## 14. Obsidian setup
 
@@ -638,13 +667,15 @@ The linter does **not** check engine schemas (the transformer does that with
 
 When a note cites a rule by number, name the document in the same sentence:
 
-- In the kit's own voice: `docs/conventions.md` §9.6. A world cites the same document as "the
-  worldkit's `docs/conventions.md` §9.6, vendored at `tools/docs/conventions.md`".
-- **Never a wikilink** into the kit (the kit is not a vault) and **never a bare basename**: `site.md`
-  is two different documents in a world — the kit's `docs/site.md` and the world's `meta/site.md`.
+- In the kit's own voice: `meta/conventions/conventions.md` §9.6. A world holds the same document
+  at the same path and cites it as "the kit's `conventions.md` §9.6".
+- **Never a wikilink** into the kit (the kit's documents are prose, not notes: no frontmatter, no id,
+  and the linter does not read them as part of the vault) and **never a bare basename**: `site.md`
+  is two different documents in a world — the kit's `meta/conventions/site.md` and the world's
+  `meta/site.md`.
 - **A number only if the document numbers its sections.** A document whose sections have names is
   cited by name: "the section on required reviewers".
-- A citation of where something *used to be* says so: "formerly `docs/site.md` §3.4".
+- A citation of where something *used to be* says so: "formerly the `site.md` document, §3.4".
 - **A citation this repository cannot check** ends its line with `citations: ignore`: a world's note
   named from the kit, or an example of a bad citation in prose. In the first five lines of a file it
   opts the whole file out. Use it for what is genuinely uncheckable, never for what is merely

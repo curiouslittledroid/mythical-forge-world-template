@@ -2,7 +2,7 @@
   "entries": [
     {
       "change": "added",
-      "date": "2026-11-26",
+      "date": "2026-11-28",
       "id": "item_readers_book",
       "section": "relics",
       "slug": "the-book",
@@ -11,13 +11,13 @@
   ],
   "pages": {
     "item_readers_book": {
-      "added": "2026-11-26",
-      "hash": "be20edc07a35",
+      "added": "2026-11-28",
+      "hash": "2bcf2c8a56d4",
       "previous_slugs": [],
       "section": "relics",
       "slug": "the-book",
       "title": "The Book",
-      "updated": "2026-11-26"
+      "updated": "2026-11-28"
     }
   }
 }

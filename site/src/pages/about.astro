@@ -1,13 +1,11 @@
 ---
-// The About page. THIS FILE IS THE WORLD'S OWN — the sync never overwrites it.
-// Replace the REPLACE_ME prose with the world's own.
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { SITE, contentDescriptors, whatToExpect } from '../lib/site';
 ---
 
 <BaseLayout
   title="About the game"
-  description={`What ${SITE.name} is, what a game in it feels like, and what it is not.`}
+  description="What this world is, what a game in it feels like, and what it is not."
   section="about"
 >
   <div class="mx-auto max-w-6xl px-5 pt-12 sm:px-8 sm:pt-16">
@@ -15,8 +13,8 @@ import { SITE, contentDescriptors, whatToExpect } from '../lib/site';
       <p class="eyebrow">About</p>
       <h1 class="mt-3 text-[clamp(2.2rem,5vw,3.2rem)]">About the game</h1>
       <p class="mt-4 text-[1.18rem] text-ash">
-        REPLACE_ME — {SITE.name}, in one sentence: the genre, the premise, and how long ago it went
-        wrong.
+        {SITE.name} is a world for fantasy tabletop roleplaying. Replace this page's prose with the
+        world's own; the tone list below comes from the world's site vocabulary.
       </p>
       <span class="rule-ember mt-6"></span>
     </header>
@@ -25,26 +23,27 @@ import { SITE, contentDescriptors, whatToExpect } from '../lib/site';
       <div class="prose-hollow max-w-[64ch]">
         <h2>What this site is</h2>
         <p>
-          A world bible, written in the open, and the codex a game master can run from. It is the
-          player-facing portion of the codex. It is not a campaign and it is not a novel: it is the
-          world several campaigns will share, designed so that the politics, the magic and the
-          monsters all trace back to the same history.
+          A world bible, written in the open, and the codex a game master can run from. Note however that 
+          it is the player facing portion of the codex. It is not a
+          campaign and it is not a novel: it is the world several campaigns will share, designed so
+          that the politics, the magic and the monsters all trace back to the same history.
         </p>
         <p>
-          The rules and engine are in development. The world is not waiting for them — it is built to
-          be played in with whatever system you bring. It is being written as a campaign world for the
-          <em>Mythical Forge game engine</em>, a platform for TTRPG-style solo play (initially). It is
-          not a 3D engine: it acts as a game master for pen-and-paper-style fantasy campaigns.
+          The rules and engine are in development. The world is not waiting for them — it is built to be played
+          in with whatever system you bring. It is being written as the first campaign world for the 
+          <em> Mythical Forge game engine</em>. A platform to support TTRPG style solo (initially) game play.
+          Its not a 3D FPS style engine, but rather one that acts as a GM for pen and paper style fantasy RPG's.
         </p>
 
         <h2>What a game feels like</h2>
         <p>
-          REPLACE_ME — who the player characters are here, given the world's structure of power. Which
-          of the world's chains do they start inside?
+          You are not heroes arriving to save a world. You are people with debts, in a place where
+          water is money, where every road ends at a gate someone else controls, and where the
+          powerful have good reasons to keep you ignorant.
         </p>
         <p>
-          REPLACE_ME — what the interesting decisions are. Not good against evil: which of two people
-          you disappoint, and what it costs to be owed a favour.
+          The interesting decisions are not good against evil. They are who eats, who is owed, who is
+          told, and which of two people you disappoint.
         </p>
 
         <h2>The tone, plainly</h2>
@@ -55,8 +54,8 @@ import { SITE, contentDescriptors, whatToExpect } from '../lib/site';
         <h2>Content</h2>
         <p>
           {SITE.name} campaigns use the content descriptors of
-          <strong>{contentDescriptors.join(', ')}</strong> unless a campaign says otherwise.
-          REPLACE_ME — one sentence on how the world treats what those descriptors cover.
+          <strong>{contentDescriptors.join(', ')}</strong> unless a campaign says otherwise. The horror
+          is quiet and it is mostly people; the violence is not glamorous; the world is not fair.
         </p>
 
         <h2>What is not here</h2>
@@ -70,8 +69,8 @@ import { SITE, contentDescriptors, whatToExpect } from '../lib/site';
       <aside class="marginalia md:border-l md:border-[var(--rule)] md:pl-5">
         <p class="eyebrow mb-2">In one line</p>
         <p>
-          REPLACE_ME — the world in one line, in the world's own vocabulary. This is the line a
-          reader should remember.
+          A grim dark world of failing water and long grudges, where the world cannot be saved but
+          the people in it can still be helped — or not.
         </p>
         <p class="mt-6 eyebrow mb-2">Status</p>
         <p>
@@ -81,12 +80,6 @@ import { SITE, contentDescriptors, whatToExpect } from '../lib/site';
         <p class="mt-6 eyebrow mb-2">Credit</p>
         <p>
           Written and built by {SITE.author}. {SITE.license}
-        </p>
-        <!-- The theme bundles IBM Plex, and the OFL asks that its notice travel with the fonts the
-             built site serves. This line is that notice, in the place a reader looks. -->
-        <p class="mt-4">
-          The machinery: Astro, Tailwind and Pagefind (MIT). The typefaces are IBM Plex,
-          <span class="whitespace-nowrap">&copy; IBM Corp.</span>, under the SIL Open Font Licence 1.1.
         </p>
       </aside>
     </div>

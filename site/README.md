@@ -11,7 +11,7 @@ world value arrives generated, in `src/data/generated/site.json`, from the world
 world's config, not this theme.
 
 The mechanism — the publish axis, the redaction rules, the audit, the page shape, the stack and the
-deploy — is `docs/site.md`. A world's own page choices are its own note.
+deploy — is `meta/conventions/site.md`. A world's own page choices are its own note.
 
 ## Run it
 
@@ -37,6 +37,7 @@ so a draft can be read on a phone: `http://<your-ip>:4321/`. It never affects `a
 | `audit/latest.json`, `audit/history.json` | **generated and committed**: the publish record and slug history |
 | `src/pages/index.astro`, `about.astro`, `follow.astro` | **the world's copy**, and the sync leaves them alone: the landing text, About, Follow. The kit ships a neutral version of each |
 | `src/pages/codex/`, `[section]/`, `tags/`, `changelog.astro`, `404.astro` | templates over generated content |
+| `public/` | **the world's**: `favicon.svg` and the `img/` art the config names. The kit ships a neutral favicon (the theme's mark) so a fork's pages have an icon; the sync never writes here |
 | `src/styles/app.css` | the design tokens — the world's look |
 | `src/lib/site.ts` | pure logic (sorting, dates, inline markdown). It reads `site.json`; it authors nothing |
 
@@ -63,7 +64,7 @@ From a workstation: `./site/deploy.sh`.
 
 1. `python3 tools/site_export.py` then the build.
 2. `python3 tools/site_audit_report.py` — **read** the keyword hits and the design citations. A
-   build may be deployed only after the audit has been read (`docs/site.md` section 2.3).
+   build may be deployed only after the audit has been read (`meta/conventions/site.md` section 2.3).
 3. `python3 tools/site_link_check.py` — must report 0 dead links.
 
 ## Replacing the theme

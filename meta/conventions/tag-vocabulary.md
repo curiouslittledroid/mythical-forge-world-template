@@ -17,8 +17,8 @@ copy of what another field already says, and it is not a note-type marker.
 | Rule | Statement |
 |---|---|
 | **R1 — A facet carries mass** | A facet tag appears on **≥3 notes**. One- and two-note tags are noise: the note's own links do the job. |
-| **R2 — Classes are closed** | A tag drawn from a list the lore already defines is kept at any count: the **8 relic categories**, the **5 magic traditions**, the **leyline magic classes**, the **Choir vocabulary** and the **Choir root stages**. |
-| **R3 — A name tag names its home** | A place or power tag is the slug of a note of that kind (minus a leading `the-`): `seam` → `the-seam`, `bloom` → `the-bloom`. A people tag is a `race_`/peoples note slug. |
+| **R2 — Classes are closed** | A tag drawn from a list the lore already defines is kept at any count: the world's classes, traditions and other closed vocabularies. |
+| **R3 — A name tag names its home** | A place or power tag is the slug of a note of that kind (minus a leading `the-`): `<place>` → `the-<place>`. A people tag is a `race_`/peoples note slug. |
 | **R4 — One spelling per concept** | Variants merge to the canonical form: plural peoples, singular classes. |
 | **R5 — No duplicate statements** | A tag goes when `kind`, the folder, `era:` or another tag on the same note already says it, and an NPC's people tag goes once `race:` records it. (Duplicates of `groups:` and `home:` are *not* removed yet — see open question 4.) |
 
@@ -42,7 +42,7 @@ homes:                         # a naming tag -> the note it must resolve to
   the linter's fixtures still work.
 - A **naming** tag (one that names people, powers or places) must resolve to a real note, through its
   `homes:` entry, its own slug, or `the-<tag>`.
-- The **published set** is a separate list, in the site's vocabulary (see `docs/site.md` §3.3): it is a
+- The **published set** is a separate list, in the site's vocabulary (see `meta/conventions/site.md` §3.3): it is a
   subset of the world's tags, never a new vocabulary. A published tag that no note carries is a build
   failure, so a theme cannot rot.
 
@@ -50,7 +50,7 @@ homes:                         # a naming tag -> the note it must resolve to
 
 A site publishes a **subset**, drawn from the vocabulary, of tags that cross sections and mean
 something to a reader. The mechanism — the vocabulary block, the audit's `withheld_tags` and
-`empty_tags`, the deny-by-default rule — is `docs/site.md` §3.3. The rule of thumb for a world: if a theme
+`empty_tags`, the deny-by-default rule — is `meta/conventions/site.md` §3.3. The rule of thumb for a world: if a theme
 lives in one section it is a worse copy of that section, and a sealed keystone is never a theme.
 
 ## Enforcing it
@@ -79,6 +79,6 @@ does the reduction **once**, and records it in its own note:
 
 ## Links
 
-- `docs/site.md` §3.3 — the published set, the audit fields and the deny-by-default rule
+- `meta/conventions/site.md` §3.3 — the published set, the audit fields and the deny-by-default rule
 - `conventions.md` — the `tags:` field and the frontmatter contract
 - a world's own tag note — its families, its vocabulary block, its merge and retirement tables
